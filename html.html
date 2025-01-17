@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resizable Side Page</title>
+  <link rel="stylesheet" href="page.css">
+</head>
+
+<body>
+  <header>
+    <h1>Clock</h1>
+  </header>
+
+  <div id="container">
+    <!-- The re-sizable tab on the left side of the page -->
+    <div id="side-page">
+
+      <!-- Menu options on the page - circle / clock management -->
+      <div class="controls">
+
+        <!-- The circles -->
+        <div>
+          <h3>Outer Circle</h3>
+          <input type="range" id="outerRadius" min="50" max="250" value="100">
+          <input type="color" id="outerColor" value="#e0e0e0">
+        </div>
+        <div>
+          <h3>Inner Circle</h3>
+          <input type="range" id="innerRadius" min="20" max="150" value="50">
+          <input type="color" id="innerColor" value="#a0a0a0">
+        </div>
+
+        <!-- The arcs -->
+        <div class="arc-controls">
+          <button id="addArc">Create Arc</button>
+          <button id="resetCircle">Reset Circle</button>
+          <div id="arcList">
+
+            <!-- Arc item spaces -->
+            <template id="arcItemTemplate">
+              <div class="arc-item">
+                <h4>Arc {index}</h4>
+                <div class="slider-container">
+                  <span class="slider-label">Radius</span>
+                  <input type="range" class="arc-radius" min="{minRadius}" max="{maxRadius}">
+                </div>
+                <div class="slider-container">
+                  <span class="slider-label">Time (<span class="time-display">00:00</span>)</span>
+                  <input type="range" class="arc-time" min="0" max="1440">
+                </div>
+                <div class="slider-container">
+                  <span class="slider-label">Thickness</span>
+                  <input type="range" class="arc-thickness" min="1" max="20">
+                </div>
+                <div class="slider-container">
+                  <span class="slider-label">Color</span>
+                  <input type="color" class="arc-color">
+                </div>
+                <button class="delete">Delete Arc</button>
+
+                <!-- For Arc's sliders, initial min, max, and changes, view html section in clock.js  -->
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div id="resizer"></div>
+    </div>
+
+    <!-- Visualizing the SVGs -->
+    <div id="content">
+      <canvas id="canvas" width="1200" height="1000"></canvas>
+    </div>
+  </div>
+
+  <script src="sidePage.js"></script>
+  <script src="clock.js"></script>
+</body>
+</html>
