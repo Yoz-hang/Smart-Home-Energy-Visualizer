@@ -9,17 +9,21 @@ resizer.addEventListener('mousedown', (e) => {
   // Prevent the default behavior of page after resizing
   e.preventDefault();
 
+  console.log("hello");
+
   // Store initial position
   const startX = e.clientX;
   const startWidth = sidePage.offsetWidth;
 
   // Function to update width while mouse is moved
   const onMouseMove = (e) => {
+    console.log("hello");
     if (isResizing) {
         const newWidth = startWidth + (e.clientX - startX);
-        const minWidth = 150; // Minimum width
+        const minWidth = 225; // Minimum width
         const maxWidth = 600; // Maximum width
-        sidePage.style.width = `${Math.min(Math.max(newWidth, minWidth), maxWidth)}px`;
+        sidePage.style.minWidth = `${Math.min(Math.max(newWidth, minWidth), maxWidth)}px`;
+
     }
   };
 
@@ -35,7 +39,4 @@ resizer.addEventListener('mousedown', (e) => {
   document.addEventListener('mouseup', onMouseUp);
 });
 
-document.getElementById('showCirclesButton').addEventListener('click', function () {
-  document.getElementById('circleContainer').classList.remove('hidden');
-});
 

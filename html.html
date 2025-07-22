@@ -11,70 +11,82 @@
   <header>
     <h1>Clock</h1>
   </header>
-
   <div id="container">
     <!-- The re-sizable tab on the left side of the page -->
     <div id="side-page">
-
+      <div id="resizer"></div>
       <!-- Menu options on the page - circle / clock management -->
       <div class="controls">
 
         <!-- The circles -->
-        <div>
+        <!-- <div>
           <h3>Outer Circle</h3>
           <input type="range" id="outerRadius" min="50" max="250" value="100">
           <input type="color" id="outerColor" value="#e0e0e0">
-        </div>
+        </div> -->
         <div>
           <h3>Inner Circle</h3>
-          <input type="range" id="innerRadius" min="20" max="150" value="50">
+          <input type="range" id="innerRadius" min="100" max="300" value="150">
           <input type="color" id="innerColor" value="#a0a0a0">
         </div>
 
         <!-- The arcs -->
         <div class="arc-controls">
-          <button id="addArc">Create Arc</button>
+          <label for="svgDropdown" class="dropDownLabel" style="font-weight:bold;">SVGS / Circles
+            <select id="svgCircleDropdown">
+              <option>Circle 1</option>
+              <option>Circle 2</option>
+              <option>Circle 3</option>
+              <option>Circle 4</option>
+              <option>Circle 5</option>
+              <option>Circle 6</option>
+              <!-- Add more SVG options here if needed -->
+            </select>
+          </label>
           <button id="resetCircle">Reset Circle</button>
           <div id="arcList">
-
+   <!-- STAND IN SPACE FOR THE HTML CODE IN CLOCK.JS -->
             <!-- Arc item spaces -->
-            <template id="arcItemTemplate">
+            <!-- <template id="arcItemTemplate"> -->
               <div class="arc-item">
                 <h4>Arc {index}</h4>
                 <div class="slider-container">
                   <span class="slider-label">Radius</span>
-                  <input type="range" class="arc-radius" min="{minRadius}" max="{maxRadius}">
-                </div>
-                <div class="slider-container">
-                  <span class="slider-label">Time (<span class="time-display">00:00</span>)</span>
-                  <input type="range" class="arc-time" min="0" max="1440">
+                  <input type="range" class="circle-radius">
                 </div>
                 <div class="slider-container">
                   <span class="slider-label">Thickness</span>
-                  <input type="range" class="arc-thickness" min="1" max="20">
+                  <input type="range" class="circle-thickness">
                 </div>
                 <div class="slider-container">
                   <span class="slider-label">Color</span>
-                  <input type="color" class="arc-color">
+                  <input type="color" class="circle-color">
                 </div>
-                <button class="delete">Delete Arc</button>
-
-                <!-- For Arc's sliders, initial min, max, and changes, view html section in clock.js  -->
               </div>
-            </template>
+            <!-- </template> -->
           </div>
         </div>
       </div>
-      <div id="resizer"></div>
     </div>
 
     <!-- Visualizing the SVGs -->
-    <div id="content">
-      <canvas id="canvas" width="1200" height="1000"></canvas>
+    <div id="content" style="position: relative; overflow: scroll;">
+      <canvas id="canvas" width="2500" height="2500"></canvas>
+        <div id="tooltip" style="
+          position: absolute;
+          padding: 6px 10px;
+          background: rgba(0,0,0,0.75);
+          color: white;
+          border-radius: 4px;
+          font-size: 14px;
+          pointer-events: none;
+          display: none;
+          z-index: 10;">
+        </div>
     </div>
   </div>
 
   <script src="sidePage.js"></script>
-  <script src="clock.js"></script>
+  <script src="svgs.js"></script>
 </body>
 </html>
