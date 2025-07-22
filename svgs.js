@@ -1,17 +1,18 @@
-const tooltip = document.getElementById("tooltip");
+//tooltip for hovering effects
+const tooltip = document.getElementById("tooltip"); 
+// canvas for drawing
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const center = { x: canvas.width / 2, y: canvas.height / 2 };
 let circles = [];
+// for svg 5 on-hover information
 let hoverArcs = [];
 
-// Circle controls
-// const outerRadiusSlider = document.getElementById('outerRadius');
+//inner refers to svg 1- the inner circle
 const innerRadiusSlider = document.getElementById('innerRadius');
-// const outerColorPicker = document.getElementById('outerColor');
 const innerColorPicker = document.getElementById('innerColor');
 
-// Unique colors for initial circles
+// Initial colours of circles svg 2-7
 const initialColors = [
     '#e74c3c',
     '#e67e22', 
@@ -22,8 +23,11 @@ const initialColors = [
 ];
 
 const datasets = [
+    // svg2
     [],
+    //svg 3
     [],
+    // svg 4
     [],
     //[number of applicances, [[number of operations modes per appliance], [mode per appliance]]
     [
@@ -72,7 +76,7 @@ const datasets = [
         [5, ['a', 'a', 'u', 'u', 'a']]]]
     ],
     // can change # of days in a month in the future when we accept data, by replacing days for variables
-    // []
+    // [months[days in a month[total, partial]]] max 100, partial 1-100
     [
         [[79, 24], [83, 25], [89, 37], [52, 12], [60, 5], [98, 10], [95, 76], [87, 44], [81, 6], [91, 22], [97, 49], [100, 73], [56, 3], [74, 20], [68, 8], [66, 32], [90, 62], [93, 11], [72, 4], [96, 52], [65, 9], [58, 29], [84, 55], [78, 14], [88, 36], [70, 13], [99, 41], [94, 18], [75, 27], [92, 33], [61, 16]],
         [[85, 7], [60, 11], [98, 69], [100, 26], [76, 24], [96, 46], [80, 47], [73, 3], [91, 14], [65, 43], [89, 32], [87, 48], [77, 10], [88, 18], [66, 5], [64, 8], [78, 13], [92, 54], [70, 23], [81, 20], [84, 50], [86, 41], [72, 30], [68, 25], [74, 12], [90, 34], [62, 28], [67, 31]],
@@ -89,24 +93,41 @@ const datasets = [
     ],
     ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 ];
+
 let circleIdCounter = 1;
-let snappedToInnerId = null;
 
 // Initialize 6 circles with unique radius, color, and thickness
 function initializeDefaultCircles() {
-    circles = [];
+    circles = [
+        {
+        id:0,
+        thickness: parseInt(innerRadiusSlider.value),
+        radius: 0, // for sorting and calculation purposes
+        color: innerColorPicker,
+        visible: true, //this doesnt matter since theres no condition to check visibility of inner circle
+        snappedTo: null, //also shouldnt matter since it'll never snap to anything but we'll keep it for sake of consistency
+        snappedBy: null, // linked-list style
+        numOfSegments: 0, // 0 for the time being to avoid errors
+        dataset: []
+        }
+];
     circleIdCounter = 1;
     innerRadiusSlider.value = 150; // Reset inner radius
+    // base segmentation conditions
+    // later applies unique segmentations like for svg 5 and 6 at index 3 and 4 (respective)
     const segments = [24,24,7,0,0,12];
+    const startingThickness = 35;
+    // CURRENTLY USING STACK AND HASHMAP - maybe adapt to OOP if necessary?
     for (let i = 0; i < 6; i++) {
-        const baseRadius = parseInt(innerRadiusSlider.value) + i * 50; 
+        const baseRadius = parseInt(innerRadiusSlider.value) + i * startingThickness; 
         circles.push({
             id: circleIdCounter++,
-            thickness: 50,
+            thickness: startingThickness,
             radius: baseRadius,
             color: initialColors[i % initialColors.length],
             visible: true,
             snappedTo: null, // Track which circle this is snapped to
+            snappedBy: null,
             originalIndex: i, // Add original index to maintain display order
             numOfSegments: segments[i],
             dataset: datasets[i]
@@ -119,13 +140,14 @@ function drawCircles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw inner circle
+    // circles[0].radius = parseInt(innerRadiusSlider.value);
     ctx.beginPath();
     ctx.arc(center.x, center.y, parseInt(innerRadiusSlider.value), 0, Math.PI * 2);
     ctx.fillStyle = innerColorPicker.value;
     ctx.fill();
     
     // Draw circles
-    circles.forEach(circle => {
+    circles.slice(1).forEach(circle => {
         if (!circle.visible) return;
         ctx.beginPath();
         ctx.strokeStyle = circle.color;
@@ -185,7 +207,6 @@ function drawCircles() {
                     // 1/days in month for space per day
                     // total is proportional to the highest total size
                     ctx.strokeStyle = "#ed7504ef";
-                    console.log(days[i][0])
                     ctx.arc(center.x, center.y, parseInt(circle.radius) + ((days[i][0]/100)*circle.thickness) / 2, 
                         (dataCounter*(Math.PI/6)) + ((i/days.length)*(Math.PI/6)) + 0.0017, 
                         (dataCounter*(Math.PI/6)) + ((i/days.length)*(Math.PI/6)) + 0.014
@@ -198,7 +219,6 @@ function drawCircles() {
                     // 1/days in month for space per day
                     // partial is also proportional to the highest total size, should it just be proportional to its respective total size?
                     ctx.strokeStyle = "#0a50ffff";
-                    console.log(days[i][1])
                     ctx.arc(center.x, center.y, parseInt(circle.radius) + ((days[i][1]/100)*circle.thickness) / 2, 
                         (dataCounter*(Math.PI/6)) + ((i/days.length)*(Math.PI/6))+ 0.0017, 
                         (dataCounter*(Math.PI/6)) + ((i/days.length)*(Math.PI/6)) + 0.014
@@ -227,7 +247,6 @@ function drawCircles() {
 
         if (circle.id == 4) {
             (circle.dataset).forEach(appliances => {
-                let applianceNum;
                 for (let i = 0; i < appliances[0]; i++) {
                     ctx.beginPath();
                     // 12 sections from the circle denoted by PI/6
@@ -269,8 +288,11 @@ function drawCircles() {
         }
 
     });
+    console.log('--------------------------');
+
 }
 
+// Hover for SVG 6
 canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -294,7 +316,7 @@ canvas.addEventListener("mousemove", (e) => {
         ) {
         foundHover = true;
         // Do something on hover!        
-        console.log("Hovered arc index:", arc.index);
+        // console.log("Hovered arc index:", arc.index);
 
         //tooltip code is code additional to whats already in html
         //unlike the other html section below, this one does not have "create...('div')"
@@ -331,49 +353,77 @@ canvas.addEventListener("mousemove", (e) => {
         tooltip.style.display = 'none';
     }
     canvas.style.cursor = foundHover ? "pointer" : "default";
-
 });
 
 // Event listeners for circles
 [innerRadiusSlider, innerColorPicker].forEach(control => {
     control.addEventListener('input', () => {
         if (control === innerRadiusSlider) {
-            updateSnappedCircles('inner'); // Update any circle snapped to inner
-            checkAllOverlaps(0); // Check overlaps starting from the inner circle
             drawCircles();
+            updateSnappedCircles(0); // Update any circle snapped to inner
+            checkAllOverlaps(0); // Check overlaps starting from the inner circle
             updateCircleControls();
         } else {
             drawCircles();
             updateCircleControls();
         }
+    // control.addEventListener('change', () => {
+    //     sortCirclesByInnerEdge();
+    //     checkAllOverlaps(0);
+    //     updateCircleControls();
+    //     });
     });
 });
 
 // Helper: Get sorted circles by inner edge but don't modify original array
 function getSortedCirclesByInnerEdge() {
-    return [...circles].sort((a, b) => (a.radius) - (b.radius));
+    return [...circles].sort((a, b) => {        // If a is not visible and b is visible, a goes after b
+        if (!a.visible && b.visible) return 1;
+        // If a is visible and b is not, a goes before b
+        if (a.visible && !b.visible) return -1;
+        // Otherwise, sort by radius
+        return a.radius - b.radius;});
 }
 
 // Helper: Sort circles by inner edge (smallest to largest) - for internal operations
 function sortCirclesByInnerEdge() {
-    circles.sort((a, b) => (a.radius) - (b.radius));
+    // console.log(circles.sort((a, b) => {
+    //     // If a is not visible and b is visible, a goes after b
+    //     if (!a.visible && b.visible) return 1;
+    //     // If a is visible and b is not, a goes before b
+    //     if (a.visible && !b.visible) return -1;
+    //     // Otherwise, sort by radius
+    //     return a.radius - b.radius;
+    // }));
+    // sort circles by size but put invisible circles to the end
+    circles.sort((a, b) => {
+        // If a is not visible and b is visible, a goes after b
+        if (!a.visible && b.visible) return 1;
+        // If a is visible and b is not, a goes before b
+        if (a.visible && !b.visible) return -1;
+        // Otherwise, sort by radius
+        return a.radius - b.radius;
+    });
 }
 
 // Snap-on logic: Snap to next smallest (index-1), or inner circle if smallest
-function snapCircleToNextSmallest(originalIndex) {
+function snapCircleToNextSmallest(circle) {
     // Find the circle by its original index
-    const circle = circles.find(c => c.originalIndex === originalIndex);
-    if (!circle) return;
+    // const circle = circles.find(c => c.originalIndex === originalIndex);
+    // if (!circle) return;
     
     const sortedCircles = getSortedCirclesByInnerEdge();
     const sortedIndex = sortedCircles.findIndex(c => c.id === circle.id);
-    
-    if (sortedIndex === 0) {
+    console.log(sortedCircles);
+    if (!sortedIndex) return;
+    if (sortedIndex === 1) {
         // Snap to inner circle
-        const innerRadius = parseInt(innerRadiusSlider.value);
-        circle.radius = innerRadius; // innerRadius
-        circle.snappedTo = 'inner';
-        snappedToInnerId = circle.id;
+        // const innerRadius = parseInt(innerRadiusSlider.value);
+        circle.radius = parseInt(innerRadiusSlider.value); // innerRadius
+        circle.snappedTo = 0;
+        circles[0].snappedBy = circle.id;
+        // console.log(circle.snappedTo, circles[0].snappedBy);
+
         updateSnappedCircles(circle.id);
         sortCirclesByInnerEdge();
         updateCircleControls();
@@ -388,7 +438,7 @@ function snapCircleToNextSmallest(originalIndex) {
     // }
     circle.radius = target.radius + target.thickness ;
     circle.snappedTo = target.id;
-    if (circle.snappedTo === 'inner') snappedToInnerId = null;
+    target.snappedBy = circle.id;
     updateSnappedCircles(circle.id);
     sortCirclesByInnerEdge();
     updateCircleControls();
@@ -396,122 +446,59 @@ function snapCircleToNextSmallest(originalIndex) {
     checkAllOverlaps(sortedIndex);
 }
 
-// Snap-on logic
-function snapCircleToNearestSmaller(circleIndex) {
-    const circle = circles[circleIndex];
-    const innerRadius = parseInt(innerRadiusSlider.value);
-
-    // Helper to check if a circle is already snapped onto by another
-    function isSnappedByOther(targetId) {
-        return circles.some(c => c.snappedTo === targetId);
-    }
-
-    // Special case: allow snapping to inner circle if not already taken
-    if (
-        snappedToInnerId === null &&
-        circle.radius > innerRadius
-    ) {
-        circle.radius = innerRadius;
-        circle.snappedTo = 'inner';
-        snappedToInnerId = circle.id;
-        updateSnappedCircles(circle.id);
-        updateCircleControls();
-        drawCircles();
-        checkAllOverlaps(circleIndex);
-        return;
-    }
-
-    // Find all smaller circles (excluding inner circle)
-    let smallerCircles = circles
-        .map((c, idx) => ({ ...c, idx }))
-        .filter(c => {
-            const smallerOuter = c.radius + c.thickness;
-            const thisInner = circle.radius;
-            return smallerOuter < thisInner && c.idx !== circleIndex;
-        });
-
-    // Sort by largest outer edge first (closest fit)
-    smallerCircles.sort((a, b) => (b.radius + b.thickness) - (a.radius + a.thickness));
-
-    // Try to snap to the nearest available (not already snapped onto) smaller circle
-    let snapped = false;
-    for (let i = 0; i < smallerCircles.length; i++) {
-        const candidate = smallerCircles[i];
-        if (!isSnappedByOther(candidate.id)) {
-            // Snap so inner edge of this circle matches outer edge of candidate
-            circle.radius = candidate.radius + candidate.thickness;
-            circle.snappedTo = candidate.id;
-            if (circle.snappedTo === 'inner') snappedToInnerId = null; // Unsnap from inner if previously snapped
-            updateSnappedCircles(circle.id);
-            updateCircleControls();
-            drawCircles();
-            checkAllOverlaps(circleIndex);
-            snapped = true;
-            break;
-        }
-    }
-    // If not snapped, do nothing
-}
-
 // When a snapped-to circle changes, update all snapped circles recursively
 function updateSnappedCircles(changedCircleId) {
-    circles.forEach((circle, idx) => {
-        if (circle.snappedTo === changedCircleId) {
-            const snappedToCircle = circles.find(c => c.id === changedCircleId);
-            if (snappedToCircle) {
-                circle.radius = snappedToCircle.radius + snappedToCircle.thickness;
-                updateSnappedCircles(circle.id);
-                checkAllOverlaps(idx);
+        const changedCircle = circles.find(c => c.id === changedCircleId);
+        if (changedCircle.snappedBy !== null) {
+            const snappedCircle = circles.find(c => c.id === changedCircle.snappedBy);
+            if (!snappedCircle) return;
+            // console.log(snappedCircle.id);
+            if (changedCircleId == 0){
+                snappedCircle.radius = parseInt(innerRadiusSlider.value);
+            } else {
+                snappedCircle.radius = changedCircle.radius + changedCircle.thickness;
             }
+            updateSnappedCircles(snappedCircle.id);
+            checkAllOverlaps(snappedCircle.id);
         }
-        // Handle inner circle snapping
-        if (circle.snappedTo === 'inner') {
-            const innerRadius = parseInt(innerRadiusSlider.value);
-            circle.radius = innerRadius;
-            updateSnappedCircles(circle.id);
-            checkAllOverlaps(idx);
-        }
-    });
 }
 
 // Helper: Get all circles in a snap chain
 function getSnapChain(circleId) {
     const chain = [];
     const visited = new Set();
-    
+    // console.log(circleId);
     function addToChain(id) {
-        if (id === 'inner' || visited.has(id)) return;
+        if (visited.has(id)) return;
         visited.add(id);
         
         const circle = circles.find(c => c.id === id);
         if (circle) {
             chain.push(circle);
             // Add circles snapped to this one
-            circles.forEach(c => {
-                if (c.snappedTo === id && !visited.has(c.id)) {
-                    addToChain(c.id);
+                if (circle.snappedBy != null && !visited.has(circle.snappedBy)) {
+                    addToChain(circle.snappedBy);
                 }
-            });
         }
     }
-    
     addToChain(circleId);
+    // console.log(chain);
     return chain;
 }
 
 // Helper: Get the combined edges of a snap chain
 function getSnapChainEdges(circleId) {
-    if (circleId === 'inner') {
-        const innerRadius = parseInt(innerRadiusSlider.value);
-        return [0, innerRadius];
-    }
+
     
     const chain = getSnapChain(circleId);
     if (chain.length === 0) return [0, 0];
     
     let minInner = Infinity;
     let maxOuter = -Infinity;
-    
+    if (circleId === 0) {
+        minInner = 0;
+        maxOuter = parseInt(innerRadiusSlider.value);
+    }
     chain.forEach(circle => {
         const inner = circle.radius;
         const outer = circle.radius + circle.thickness;
@@ -523,7 +510,7 @@ function getSnapChainEdges(circleId) {
 }
 
 // Overlap check and resolve
-function checkAllOverlaps(startIdx) {
+function checkAllOverlaps(sortedIndex) {
     let changed;
     do {
         changed = false;
@@ -531,24 +518,27 @@ function checkAllOverlaps(startIdx) {
         
         // Group circles into snap chains
         const chains = [];
-        chains.push({ id: 'inner', edges: [0, parseInt(innerRadiusSlider.value)] });
+        // chains.push({ id: 'inner', edges: [0, parseInt(innerRadiusSlider.value)] });
         
         circles.forEach(circle => {
+            if (!circle.visible) return; // Skip invisible circles
             if (!processedChains.has(circle.id)) {
                 const chain = getSnapChain(circle.id);
+                // console.log(chain);
                 if (chain.length > 0) {
                     const edges = getSnapChainEdges(circle.id);
+                    // console.log(edges);
                     chains.push({ 
                         id: circle.id, 
                         chain: chain,
                         edges: edges,
-                        representativeCircle: chain[0] // Use first circle as representative
                     });
                     chain.forEach(c => processedChains.add(c.id));
                 }
             }
         });
-        
+        // console.log(parseInt(innerRadiusSlider.value), circles[1].radius + circles[1].thickness/2);
+        // console.log(chains);
         // Check overlaps between chains
         for (let i = 1; i < chains.length; i++) {
             for (let j = 0; j < i; j++) {
@@ -563,24 +553,40 @@ function checkAllOverlaps(startIdx) {
                     (innerJ < outerI && outerJ > innerI)    // chain j overlaps chain i
                 );
                 
+                
                 if (overlap) {
-                    if (j === 0) continue; // never move the inner circle chain
-                    
-                    // Move chain i so its inner edge is just outside chain j's outer edge
-                    const adjustment = outerJ - innerI;
-                    
-                    // Apply adjustment to all circles in chain i
-                    chainI.chain.forEach(circle => {
-                        circle.radius += adjustment;
-                    });
-                    
-                    // Update any circles snapped to circles in this chain
-                    chainI.chain.forEach(circle => {
-                        updateSnappedCircles(circle.id);
-                    });
-                    
-                    changed = true;
-                    break;
+                    if (j === 0) {
+                        // If overlapping with the inner circle (j === 0), always move chain i outward
+                        
+                        // Apply adjustment to all circles in chain i
+                        chainI.chain.forEach(circle => {
+                            circle.radius = outerJ;
+                        });
+                        
+                        // Update any circles snapped to circles in this chain
+                        chainI.chain.forEach(circle => {
+                            updateSnappedCircles(circle.id);
+                        });
+                        
+                        changed = true;
+                        break;
+                    } else {
+                        // For overlaps between non-inner chains, move chain i outward
+                        const adjustment = outerJ - innerI;
+                        
+                        // Apply adjustment to all circles in chain i
+                        chainI.chain.forEach(circle => {
+                            circle.radius += adjustment;
+                        });
+                        
+                        // Update any circles snapped to circles in this chain
+                        chainI.chain.forEach(circle => {
+                            updateSnappedCircles(circle.id);
+                        });
+                        
+                        changed = true;
+                        break;
+                    }
                 }
             }
             if (changed) break;
@@ -588,15 +594,22 @@ function checkAllOverlaps(startIdx) {
     } while (changed);
     updateCircleControls();
     drawCircles();
-    getCircleEdgesList();
+    sortCirclesByInnerEdge();
+    // getCircleEdgesList();
 }
-
+function breakSnap(circle) {
+    circle.snappedTo = null;
+    const findSnappedBy = circles.find(c => c.snappedBy === circle.id);
+    if (!findSnappedBy) {return;}
+    else {findSnappedBy.snappedBy = null;}
+}
 function updateCircleControls() {
     const circleList = document.getElementById('arcList');
     circleList.innerHTML = '';
 
     // Display circles in their original order, not sorted order
-    const circlesInOriginalOrder = [...circles].sort((a, b) => a.originalIndex - b.originalIndex);
+    // dont include the inner circle, start at index 1
+    const circlesInOriginalOrder = [...(circles.slice(1))].sort((a, b) => a.originalIndex - b.originalIndex);
     circlesInOriginalOrder.forEach((circle, displayIndex) => {
         const circleDiv = document.createElement('div');
         circleDiv.className = 'arc-item';
@@ -626,10 +639,13 @@ function updateCircleControls() {
         radiusSlider.addEventListener('input', () => {
             circle.radius = parseInt(radiusSlider.value);
             updateSnappedCircles(circle.id);
-            if (circle.snappedTo) circle.snappedTo = null;
+            breakSnap(circle);
+            // if (circle.snappedTo) circle.snappedTo = null;
             sortCirclesByInnerEdge();
             drawCircles();
-            getCircleEdgesList();
+            sortCirclesByInnerEdge();
+
+            // getCircleEdgesList();
         });
         radiusSlider.addEventListener('change', () => {
             sortCirclesByInnerEdge();
@@ -645,7 +661,8 @@ function updateCircleControls() {
             updateSnappedCircles(circle.id);
             sortCirclesByInnerEdge();
             drawCircles();
-            getCircleEdgesList();
+            sortCirclesByInnerEdge();
+            // getCircleEdgesList();   
         });
         thicknessSlider.addEventListener('change', () => {
             sortCirclesByInnerEdge();
@@ -666,13 +683,14 @@ function updateCircleControls() {
             circle.visible = !circle.visible;
             showHideButton.textContent = circle.visible ? 'Hide' : 'Show';
             drawCircles();
-            getCircleEdgesList();
+            // getCircleEdgesList();
+            sortCirclesByInnerEdge;
         });
 
         const snapOnButton = circleDiv.querySelector('.snap-on');
         snapOnButton.disabled = !!circle.snappedTo;
         snapOnButton.addEventListener('click', () => {
-            snapCircleToNextSmallest(circle.originalIndex);
+            snapCircleToNextSmallest(circle);
         });
 
         circleList.appendChild(circleDiv);
@@ -690,19 +708,23 @@ document.getElementById('arcList').style.display = '';
 // Initial draw and setup
 initializeDefaultCircles();
 
-function getCircleEdgesList() {
-    const edges = [];
-    // Add the inner circle as the first entry (optional)
-    edges.push([0, parseInt(innerRadiusSlider.value)]);
-    // Add all user circles
-    circles.forEach(circle => {
-        const inner = circle.radius;
-        const outer = circle.radius + circle.thickness;
-        edges.push([inner, outer]);
-    });
-    return edges;
-}
+
+
+// CURRENTLY NOT IN USE //
+// function getCircleEdgesList() {
+//     const edges = [];
+//     // Add the inner circle as the first entry (optional)
+//     // edges.push([0, parseInt(innerRadiusSlider.value)]);
+//     // Add all user circles
+//     circles.forEach(circle => {
+//         const inner = circle.radius;
+//         const outer = circle.radius + circle.thickness;
+//         edges.push([inner, outer]);
+//     });
+//     // console.log(edges);
+//     return edges;
+// }
 
 // Example usage:
-const allEdges = getCircleEdgesList();
+
 // allEdges[i][0] = inner edge, allEdges[i][1] = outer edge for each circle (0 is inner circle)
