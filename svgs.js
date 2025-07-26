@@ -150,12 +150,26 @@ function drawCircles() {
     circles.slice(1).forEach(circle => {
         if (!circle.visible) return;
         ctx.beginPath();
-        ctx.strokeStyle = circle.color;
+        // ctx.strokeStyle = circle.color;
         ctx.arc(center.x, center.y, parseInt(circle.radius) + circle.thickness / 2, 0, Math.PI * 2);
         // + circle.thickness / 2 so that the change in thickness is applied to the outer edge
         ctx.lineWidth = circle.thickness;
         ctx.strokeStyle = circle.color;
         ctx.stroke();
+
+        // OUTLINE FOR CIRCLES - not applied to i = 5,6
+        // ctx.beginPath();
+        // ctx.arc(center.x, center.y, parseInt(circle.radius), 0, Math.PI*2);
+        // ctx.strokeStyle = "#ffffffff";
+        // ctx.lineWidth = Math.PI/5;
+        // ctx.stroke();
+        
+        // ctx.beginPath();
+        // // circle.lineWidth = 10000;
+        // ctx.arc(center.x, center.y, parseInt(circle.radius) + circle.thickness, 0, Math.PI*2);
+        // ctx.lineWidth = Math.PI/2;
+        // ctx.strokeStyle = "#ffffffff";
+        // ctx.stroke();
 
         for (let i = 0; i < circle.numOfSegments; i++) {
             ctx.beginPath();
@@ -165,6 +179,8 @@ function drawCircles() {
             ctx.lineWidth = circle.thickness;
             ctx.strokeStyle = "#000000";
             ctx.stroke();
+
+
         }
 
         //counter used for sorting in calculation of sectionalizing all svgs
@@ -288,7 +304,7 @@ function drawCircles() {
         }
 
     });
-    console.log('--------------------------');
+    // console.log('--------------------------');
 
 }
 
