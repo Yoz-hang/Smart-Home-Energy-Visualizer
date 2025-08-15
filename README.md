@@ -23,7 +23,11 @@ Key elements include:
     Control panel size behaviour
 
 SVRs.js contains code for data processing and Sub Visual Representations for graphs
+
+*Feel free to edit the datasets by changing values of the times and names in the datasets*
+
 Key elements include:   
+
     SVR1:
         Beginning of doubly linked list
         Always visible
