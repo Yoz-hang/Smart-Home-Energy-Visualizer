@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resizable Side Page</title>
-  <link rel="stylesheet" href="page.css">
+  <title>Smart Home Energy Consumption</title>
+  <link rel="stylesheet" href="Controls.css">
 </head>
 
 <body>
@@ -26,13 +26,16 @@
         </div> -->
         <div>
           <h3>Inner Circle</h3>
-          <input type="range" id="innerRadius" min="100" max="300" value="150">
+          <input type="range" id="innerRadius" min="50" max="200" value="80">
           <input type="color" id="innerColor" value="#a0a0a0">
         </div>
 
         <!-- The arcs -->
         <div class="arc-controls">
-          <label for="svgDropdown" class="dropDownLabel" style="font-weight:bold;">SVGS / Circles
+          
+          <!-- dropdown option for hiding/showing svrs
+            -->
+          <!-- <label for="svgDropdown" class="dropDownLabel" style="font-weight:bold;">SVRs / Circles
             <select id="svgCircleDropdown">
               <option>Circle 1</option>
               <option>Circle 2</option>
@@ -40,15 +43,16 @@
               <option>Circle 4</option>
               <option>Circle 5</option>
               <option>Circle 6</option>
-              <!-- Add more SVG options here if needed -->
             </select>
-          </label>
+          </label> -->
+
           <button id="resetCircle">Reset Circle</button>
+          <button id="gapToggle">Toggle SVR gap</button>
           <div id="arcList">
-   <!-- STAND IN SPACE FOR THE HTML CODE IN CLOCK.JS -->
+   <!-- STAND IN SPACE FOR THE HTML CODE IN SVG.JS -->
             <!-- Arc item spaces -->
             <!-- <template id="arcItemTemplate"> -->
-              <div class="arc-item">
+              <!-- <div class="arc-item">
                 <h4>Arc {index}</h4>
                 <div class="slider-container">
                   <span class="slider-label">Radius</span>
@@ -62,7 +66,7 @@
                   <span class="slider-label">Color</span>
                   <input type="color" class="circle-color">
                 </div>
-              </div>
+              </div> -->
             <!-- </template> -->
           </div>
         </div>
@@ -87,6 +91,6 @@
   </div>
 
   <script src="sidePage.js"></script>
-  <script src="svgs.js"></script>
+  <script src="SVRs.js"></script>
 </body>
 </html>
