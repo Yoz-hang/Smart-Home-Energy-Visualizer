@@ -24,7 +24,11 @@ Key elements include:
 
 SVRs.js contains code for data processing and Sub Visual Representations for graphs
 
+*********************************************************************************************************
 *Feel free to edit the datasets by changing values of the times and names in the datasets*
+
+*Instructions and information on the structure of the datasets are given in the code*
+*********************************************************************************************************
 
 Key elements include:   
 
