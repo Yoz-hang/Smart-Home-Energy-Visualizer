@@ -1,0 +1,23 @@
+{
+  "name": "smart-home-visualizer",
+  "version": "1.0.0",
+  "description": "Smart Home Energy Consumption",
+  "main": "sidePage.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yoz-hang/Clock-and-Arcs-SVGs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yoz-hang/Clock-and-Arcs-SVGs/issues"
+  },
+  "homepage": "https://github.com/Yoz-hang/Clock-and-Arcs-SVGs#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
